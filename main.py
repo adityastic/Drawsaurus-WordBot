@@ -1,9 +1,19 @@
+import time
+import random
+import names
+import requests
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
+
+PLAYER1_NAME = names.get_first_name()
+PLAYER2_NAME = names.get_first_name()
+ROOM_NAME = 'Test' + str(random.randint(1, 1000))
+ROOM_PASSWORD = 'password'
 
 
 def get_element_by_xpath(driver, element_xpath):
@@ -60,7 +70,10 @@ def create_room(driver, room_name, room_password):
 
 def find_items_by_class(driver, class_to_find):
     items = [item.text for item in driver.find_elements_by_class_name(class_to_find)]
-    print(items)
+    if len(items) > 0:
+        res = requests.post('https://drawsaurus-wordscrape.herokuapp.com/addName', json={"values": items})
+        if res.ok:
+            print(items)
 
 
 def find_still_playing(driver, class_to_find):
@@ -69,28 +82,31 @@ def find_still_playing(driver, class_to_find):
     except NoSuchElementException:
         still_playing = None
 
-    print('SP', still_playing)
     if still_playing is not None:
         still_playing.click()
 
 
+options = Options()
+options.headless = True
+
 player1Browser = webdriver.Firefox(
-    executable_path='./drivers/geckodriver'
+    executable_path='./drivers/geckodriver',
+    options=options
 )
 
 player2Browser = webdriver.Firefox(
-    executable_path='./drivers/geckodriver'
+    executable_path='./drivers/geckodriver',
+    options=options
 )
 
 player1Browser.get('https://www.drawasaurus.org')
 
-if login_user(player1Browser, 'Aditya'):
-    room_link = create_room(player1Browser, 'ARRoom', 'password')
-    print('Room Link:', room_link)
+if login_user(player1Browser, PLAYER1_NAME):
+    room_link = create_room(player1Browser, ROOM_NAME, ROOM_PASSWORD)
 
     player2Browser.get(room_link)
-    if login_user(player2Browser, 'Rupal'):
-        if fill_password(player2Browser, 'password'):
+    if login_user(player2Browser, PLAYER2_NAME):
+        if fill_password(player2Browser, ROOM_PASSWORD):
             ready_button_pl1 = get_element_by_xpath(player1Browser,
                                                     '/html/body/div[1]/div/div/div/div[1]/div/div[3]/div[1]/div/div[1]/button[1]')
             ready_button_pl2 = get_element_by_xpath(player2Browser,
@@ -98,8 +114,7 @@ if login_user(player1Browser, 'Aditya'):
             ready_button_pl2.click()
             ready_button_pl1.click()
 
-            for i in range(15):
-                print('execution', i)
+            while True:
                 find_items_by_class(player1Browser, 'c-word-picker__word')
                 find_items_by_class(player2Browser, 'c-word-picker__word')
 
@@ -111,5 +126,4 @@ if login_user(player1Browser, 'Aditya'):
                 find_still_playing(player2Browser,
                                    '/html/body/div[1]/div/div/div/div[1]/div/div[3]/div[1]/div/div[1]/button[1]')
 
-            player1Browser.close()
-            player2Browser.close()
+                time.sleep(9)
