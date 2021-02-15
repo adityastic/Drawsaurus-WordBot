@@ -90,12 +90,12 @@ options = Options()
 options.headless = True
 
 player1Browser = webdriver.Firefox(
-    executable_path='./drivers/geckodriver',
+    # executable_path='./drivers/geckodriver',
     options=options
 )
 
 player2Browser = webdriver.Firefox(
-    executable_path='./drivers/geckodriver',
+    # executable_path='./drivers/geckodriver',
     options=options
 )
 
