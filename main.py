@@ -114,7 +114,7 @@ if login_user(player1Browser, PLAYER1_NAME):
             ready_button_pl2.click()
             ready_button_pl1.click()
 
-            while True:
+            for i in range(250):
                 find_items_by_class(player1Browser, 'c-word-picker__word')
                 find_items_by_class(player2Browser, 'c-word-picker__word')
 
@@ -127,3 +127,6 @@ if login_user(player1Browser, PLAYER1_NAME):
                                    '/html/body/div[1]/div/div/div/div[1]/div/div[3]/div[1]/div/div[1]/button[1]')
 
                 time.sleep(9)
+            
+            player1Browser.close()
+            player2Browser.close()
