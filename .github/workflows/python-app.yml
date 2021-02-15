@@ -4,12 +4,14 @@
 name: Python application
 
 on:
+  schedule:
+    - cron: '*/7 * * * *'
   push:
     branches: [ master ]
 
 jobs:
   build:
-
+    timeout-minutes: 60
     runs-on: ubuntu-latest
 
     steps:
